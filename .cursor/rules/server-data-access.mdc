@@ -5,8 +5,8 @@ alwaysApply: true
 
 # Server data access and validation
 
-- **Data retrieval**: All data fetching from the database must be done in **server components** or other server-only contexts (e.g. server actions), never directly in client components.
-- **Writes and mutations**: Any **insert, update, or delete** that touches the database must go through a **server action**. **Never** perform inserts/updates/deletes directly from API routes or client components.
+- **Data retrieval**: All data fetching from the database must be done via **helper functions/queries** in the `src/db/queries` (or `db/queries`) directory, and those helpers must only be called from **server components** or other server-only contexts (e.g. server actions), never directly from client components.
+- **Writes and mutations**: Any **insert, update, or delete** that touches the database must be implemented as a **helper function/query** in `src/db/queries` (or `db/queries`) and invoked from a **server action**. **Never** perform inserts/updates/deletes directly from API routes or client components.
 
 # Zod validation requirements
 
@@ -18,15 +18,35 @@ alwaysApply: true
 - **Pattern**:
 
 ```ts
-const SomeActionSchema = z.object({
-  // fields...
-});
+// src/db/queries/cards.ts
+import { db } from "@/db"; // drizzle instance
+import { cards } from "@/db/schema";
 
-export type SomeActionInput = z.infer<typeof SomeActionSchema>;
+export async function getUserCards(userId: string) {
+  return db.query.cards.findMany({
+    where: (cards, { eq }) => eq(cards.userId, userId),
+    orderBy: (cards, { asc }) => [asc(cards.createdAt)],
+  });
+}
 
-export async function someAction(input: SomeActionInput) {
-  const parsed = SomeActionSchema.parse(input);
-  // use parsed safely here
+// src/app/actions/get-user-cards.ts
+"use server";
+
+import { z } from "zod";
+import { auth } from "@clerk/nextjs/server";
+import { getUserCards } from "@/db/queries/cards";
+
+const GetUserCardsSchema = z.object({});
+
+export type GetUserCardsInput = z.infer<typeof GetUserCardsSchema>;
+
+export async function getUserCardsAction(_input: GetUserCardsInput) {
+  const parsed = GetUserCardsSchema.parse(_input);
+
+  const { userId } = auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  return getUserCards(userId);
 }
 ```
 

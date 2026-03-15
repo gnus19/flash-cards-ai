@@ -29,3 +29,4 @@ Replace `button` with the component name you need (e.g. `card`, `dialog`, `input
 
 - Use only shadcn UI components for buttons, forms, dialogs, cards, and other UI elements.
 - If a component is missing, install it with `npx shadcn@latest add <component-name>` before implementing the feature.
+- Keep in mind the project's theming, that means no dark text on dark backgrounds and no light text on light backgrounds

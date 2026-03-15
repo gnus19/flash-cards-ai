@@ -36,22 +36,31 @@ export default function RootLayout({
             }}
           >
           <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center justify-end gap-2">
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <Button className="rounded-full" variant="outline">
-                  Sign in
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button className="rounded-full" variant="default">
-                  Sign up
-                </Button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
-              <UserButton />
-            </Show>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-lg font-semibold tracking-tight">
+                Flash Card
+              </span>
+              <div className="flex items-center justify-end gap-2">
+                <Show when="signed-out">
+                  <SignInButton
+                    mode="modal"
+                    forceRedirectUrl="/dashboard"
+                    signUpForceRedirectUrl="/dashboard"
+                  >
+                    <Button className="rounded-full" variant="outline">
+                      Sign in
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal" forceRedirectUrl="/dashboard">
+                    <Button className="rounded-full" variant="default">
+                      Sign up
+                    </Button>
+                  </SignUpButton>
+                </Show>
+                <Show when="signed-in">
+                  <UserButton />
+                </Show>
+              </div>
             </div>
           </header>
           {children}
