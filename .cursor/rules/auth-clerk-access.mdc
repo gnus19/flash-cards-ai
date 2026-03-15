@@ -1,0 +1,27 @@
+---
+description: Authentication and authorization must use Clerk and strictly enforce per-user data access
+alwaysApply: true
+---
+
+# Authentication and data access with Clerk
+
+- **Use Clerk for all authentication and user identity**.
+  - Do not introduce alternative auth mechanisms or custom JWT/session handling outside of Clerk.
+  - Derive the current user exclusively from Clerk primitives (e.g. user ID, session) rather than from request body/query parameters.
+
+- **Enforce per-user data isolation in all backend logic**.
+  - Every read, write, update, or delete that touches user-owned data must be scoped by the authenticated user's identifier from Clerk.
+  - Never trust client-provided identifiers alone (e.g. `userId` in body, query, or params) without also checking that it matches the authenticated Clerk user.
+
+- **Route and query patterns**:
+  - When querying the database for user data, always add a condition that filters by the authenticated user's ID.
+  - For resources that belong to a user (e.g. cards, decks, profiles), verify ownership before returning or mutating data, and return an appropriate error or 404 when the resource does not belong to the current user.
+
+- **Server-only enforcement**:
+  - Authorization checks must happen on the server (API routes, server components, server actions, middleware), not only in the client UI.
+  - Do not expose endpoints that can operate on arbitrary user data without confirming ownership against Clerk.
+
+- **Multi-tenant or shared resources**:
+  - If a resource is intentionally shared across users, document and implement explicit access rules (e.g. role checks, membership checks) still based on Clerk-provided identity.
+  - Avoid "open" queries that return data for many users unless there is a clear, documented reason and proper authorization logic linked to Clerk identities.
+

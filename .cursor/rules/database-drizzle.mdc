@@ -1,0 +1,23 @@
+---
+description: Database access must use the shared Drizzle schema and query helpers
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+
+# Database interactions must use Drizzle
+
+- **Use the shared Drizzle schema** for all database interactions.
+  - Define and reuse tables in `[src/db/schema.ts](mdc:src/db/schema.ts)`.
+  - Use the shared Drizzle client in `[src/db/index.ts](mdc:src/db/index.ts)`.
+
+- **Do not use raw SQL or ad‑hoc database clients** (e.g. `pg`, `mysql2`, Prisma) directly in feature code.
+  - If you must run a custom query, prefer Drizzle's query builder or `sql` helpers, still going through the configured Drizzle client.
+
+- **Keep database logic close to the schema layer**:
+  - Prefer small, well‑named helper functions in `src/db` that wrap Drizzle queries.
+  - Call those helpers from routes, API handlers, or server components rather than re‑creating queries everywhere.
+
+- **Consistency requirements**:
+  - Reuse existing tables and relations from the Drizzle schema instead of redefining columns or table names.
+  - When changing the schema, also update any related Drizzle queries and migrations.
+

@@ -1,0 +1,39 @@
+---
+description: Conventions for data access, server components, server actions, and zod validation.
+alwaysApply: true
+---
+
+# Server data access and validation
+
+- **Data retrieval**: All data fetching from the database must be done in **server components** or other server-only contexts (e.g. server actions), never directly in client components.
+- **Writes and mutations**: Any **insert, update, or delete** that touches the database must go through a **server action**. **Never** perform inserts/updates/deletes directly from API routes or client components.
+
+# Zod validation requirements
+
+- **Validation library**: Use **zod** for **all** data validation in this project.
+- **Server actions input**:
+  - Any data passed into a server action **must** be validated with a zod schema.
+  - Derive a **TypeScript type** from the zod schema using `z.infer<...>` (or a `type` alias) and use that as the function parameter type.
+  - **Do not** use `FormData` (or other untyped shapes) as the server action parameter type.
+- **Pattern**:
+
+```ts
+const SomeActionSchema = z.object({
+  // fields...
+});
+
+export type SomeActionInput = z.infer<typeof SomeActionSchema>;
+
+export async function someAction(input: SomeActionInput) {
+  const parsed = SomeActionSchema.parse(input);
+  // use parsed safely here
+}
+```
+
+# Client/server boundaries
+
+- Keep client components **free of direct database access**; they should call **server components or server actions** that follow these rules (not API routes that perform writes directly).
+- When handling user-submitted data, **always**:
+  - Collect raw data in the client,
+  - Send it to a server action,
+  - Validate with zod on the server **before** touching the database.
