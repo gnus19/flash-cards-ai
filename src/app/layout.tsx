@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Poppins } from "next/font/google";
 import {
   ClerkProvider,
@@ -9,6 +10,8 @@ import {
 } from "@clerk/nextjs";
 import { dark } from "@clerk/ui/themes";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -35,12 +38,22 @@ export default function RootLayout({
               theme: dark,
             }}
           >
+          <TooltipProvider>
           <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-lg font-semibold tracking-tight">
+              <Link
+                href="/dashboard"
+                className="text-lg font-semibold tracking-tight text-foreground hover:text-foreground/90"
+              >
                 Flash Card
-              </span>
-              <div className="flex items-center justify-end gap-2">
+              </Link>
+              <nav className="flex items-center justify-end gap-2">
+                <Link href="/pricing">
+                  <Button variant="ghost" size="sm">
+                    Pricing
+                  </Button>
+                </Link>
+                <div className="flex items-center gap-2">
                 <Show when="signed-out">
                   <SignInButton
                     mode="modal"
@@ -60,10 +73,13 @@ export default function RootLayout({
                 <Show when="signed-in">
                   <UserButton />
                 </Show>
-              </div>
+                </div>
+              </nav>
             </div>
           </header>
           {children}
+          <Toaster />
+          </TooltipProvider>
         </ClerkProvider>
       </body>
     </html>

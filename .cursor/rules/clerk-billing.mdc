@@ -1,0 +1,114 @@
+---
+alwaysApply: false
+description: Clerk Billing for subscriptions and payments; plan and feature gating (free_user, pro, 3_deck_limit, unlimited_decks, ai_flashcard_generation)
+---
+
+# Clerk Billing (B2C SaaS)
+
+This app uses **Clerk Billing** for subscriptions and payments. All subscription and payment logic should go through Clerk Billing; do not introduce separate Stripe Billing or custom subscription handling.
+
+## Plans
+
+- `free_user`
+- `pro`
+
+## Features
+
+- `3_deck_limit` – free tier deck limit
+- `unlimited_decks` – pro tier
+- `ai_flashcard_generation` – pro tier
+
+## Controlling access with Plans and Features
+
+Use either the **`has()`** method (server-side) or the **`<Show>`** component to gate content or UI by plan or feature.
+
+### Server-side: `has()`
+
+`has()` is available on the `auth` object from `@clerk/nextjs/server`. Use it in server components or server actions.
+
+**By plan:**
+
+```ts
+const { has } = await auth()
+const isPro = has({ plan: 'pro' })
+```
+
+**By feature:**
+
+```ts
+const { has } = await auth()
+const canHaveUnlimitedDecks = has({ feature: 'unlimited_decks' })
+const canUseAIGeneration = has({ feature: 'ai_flashcard_generation' })
+const hasDeckLimit = has({ feature: '3_deck_limit' })
+```
+
+Example: protect a server-rendered page or enforce limits in a server action:
+
+```tsx
+import { auth } from '@clerk/nextjs/server'
+
+export default async function ProOnlyPage() {
+  const { has } = await auth()
+  if (!has({ plan: 'pro' })) {
+    return <p>Upgrade to Pro to access this.</p>
+  }
+  return <h1>Pro content</h1>
+}
+```
+
+### Client/Server: `<Show>`
+
+Use `<Show>` from `@clerk/nextjs` to conditionally render UI by plan or feature. Use the `fallback` prop for when the user does not have access.
+
+**By plan:**
+
+```tsx
+import { Show } from '@clerk/nextjs'
+
+<Show
+  when={{ plan: 'pro' }}
+  fallback={<p>Upgrade to Pro to unlock this.</p>}
+>
+  <ProFeature />
+</Show>
+```
+
+**By feature:**
+
+```tsx
+<Show
+  when={{ feature: 'unlimited_decks' }}
+  fallback={<p>Free users are limited to 3 decks. Upgrade for unlimited decks.</p>}
+>
+  <AddDeckButton />
+</Show>
+```
+
+```tsx
+<Show when={{ feature: 'ai_flashcard_generation' }} fallback={null}>
+  <AIGenerateButton />
+</Show>
+```
+
+## Pricing page
+
+Use the Clerk `<PricingTable />` component for a dedicated pricing page. Plans and features are configured in the [Clerk Dashboard](https://dashboard.clerk.com/~/billing/plans).
+
+```tsx
+// app/pricing/page.tsx
+import { PricingTable } from '@clerk/nextjs'
+
+export default function PricingPage() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <PricingTable />
+    </div>
+  )
+}
+```
+
+## Enforcement
+
+- **Server-side**: Always enforce plan/feature limits in **server actions** and **server components** (e.g. deck creation, AI generation). Use `has({ plan: '...' })` or `has({ feature: '...' })` from `auth()`; do not rely only on client-side `<Show>` for security.
+- **UI**: Use `has()` in server components or `<Show>` in components to hide or disable buttons/links and show upgrade prompts for `free_user` or missing features.
+- **Deck limit**: For `3_deck_limit`, check the user's feature (or plan) and current deck count in the server action that creates decks; reject creation when over limit and the user does not have `unlimited_decks`.

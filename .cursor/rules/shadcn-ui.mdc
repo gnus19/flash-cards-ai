@@ -1,11 +1,11 @@
 ---
-description: Use shadcn UI for all UI elements; init and add components when needed
+description: Use only shadcn UI components for UI; init and add components when needed
 alwaysApply: true
 ---
 
 # shadcn UI
 
-This project uses **shadcn UI** for all UI elements. Prefer shadcn components over custom or other UI libraries.
+This project uses **only shadcn UI** for UI elements. Do not use custom UI components or other UI libraries for buttons, forms, dialogs, cards, inputs, or similar elements—use shadcn components from `@/components/ui` instead.
 
 ## Initialization
 
@@ -27,6 +27,8 @@ Replace `button` with the component name you need (e.g. `card`, `dialog`, `input
 
 ## Guidelines
 
-- Use only shadcn UI components for buttons, forms, dialogs, cards, and other UI elements.
-- If a component is missing, install it with `npx shadcn@latest add <component-name>` before implementing the feature.
-- Keep in mind the project's theming, that means no dark text on dark backgrounds and no light text on light backgrounds
+- **Use only shadcn UI components** for all interactive and structural UI (buttons, forms, dialogs, cards, inputs, dropdowns, etc.). Do not introduce custom equivalents or other UI libraries.
+- Only use custom components if it's a wrapper of a shadcn ui component
+- Source components from `@/components/ui`; if a component is missing, add it with `npx shadcn@latest add <component-name>` before implementing the feature.
+- Use the project's theme tokens (e.g. `bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-card`) instead of hardcoded colors like `bg-zinc-*` or `text-black` so theming stays consistent unless it is specified.
+- Respect the project's theming: no dark text on dark backgrounds and no light text on light backgrounds.

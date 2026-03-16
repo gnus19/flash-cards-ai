@@ -11,13 +11,13 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <main className="flex flex-col items-center justify-center gap-8 text-center">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight text-black dark:text-zinc-50">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Flash Cards Decks
           </h1>
-          <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
+          <p className="mt-2 text-lg text-muted-foreground">
             Your personal flashcard platform
           </p>
         </div>
